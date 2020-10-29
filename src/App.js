@@ -23,16 +23,25 @@ import "./App.css";
 // jsx file
 const App = () => {
   const [cityName, setCityName] = useState("");
-  const [current, setCurrent] = useState({});
-  const [forecast, setForecast] = useState({});
+  const [dayArray, setDayArray] = useState([]);
 
-  const fiveDayArray = [
-    { day: "Sun", temp: 27 },
-    { day: "Mon", temp: 28 },
-    { day: "Tue", temp: 21 },
-    { day: "Wed", temp: 25 },
-    { day: "Thu", temp: 30 },
-  ];
+  /**
+   * [
+   *    {day:"Mon", max:34.5, min:24.9},
+   *    {day:"Tue", max:34.5, min:24.9},
+   *    {day:"Wed", max:34.5, min:24.9},
+   * ]
+   */
+
+  const daysName = {
+    0: "Sun",
+    1: "Mon",
+    2: "Tue",
+    3: "Wed",
+    4: "Thu",
+    5: "Fri",
+    6: "Sat",
+  };
 
   const getWeatherForecast = () => {
     if (!cityName) {
@@ -42,14 +51,28 @@ const App = () => {
     axios.get(url).then((result) => {
       console.log("result", result.data);
       if (result.data) {
-        setCurrent(result.data.current);
-        setForecast(result.data.forecast);
+        const _forecast = result.data.forecast;
+
+        const newArr = [];
+        _forecast.forecastday.forEach((elem) => {
+          const obj = {};
+          const day = new Date(elem.date).getDay();
+          obj.day = daysName[day];
+          obj.max = elem.day.maxtemp_c;
+          obj.min = elem.day.mintemp_c;
+          newArr.push(obj);
+        });
+
+        setDayArray(newArr);
       }
     });
   };
   return (
     <div className="App">
-      <div className="Header">Weather App</div>
+      <div className="Header">
+        <img src="cloudy.png" style={{ height: "50px", width: "px" }} />
+        Weather App
+      </div>
       <div className="SearchContainer">
         <input
           type="text"
@@ -70,13 +93,13 @@ const App = () => {
       </div>
       <div className="CityName">
         <h3>Searching Temp of: {cityName}</h3>
-        <h3>{current.temp_c}</h3>
       </div>
-      {fiveDayArray.map((e) => {
+      {dayArray.map((e) => {
         return (
           <div className="Card">
             <h3>{e.day}</h3>
-            <h4>{e.temp} &#8451;</h4>
+            <div className="TempText">Min: {e.min} &#8451;</div>
+            <div className="TempText">Max: {e.max} &#8451;</div>
           </div>
         );
       })}
