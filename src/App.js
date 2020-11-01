@@ -29,6 +29,7 @@ import "./App.css";
 const App = () => {
   const [cityName, setCityName] = useState("");
   const [dayArray, setDayArray] = useState([]);
+  const [location, setLocation] = useState({});
   const [loading, setLoading] = useState(false);
 
   /**
@@ -66,15 +67,14 @@ const App = () => {
       .get(url)
       .then((result) => {
         setLoading(false);
-        console.log("result", result.data);
         if (result.data) {
           const _forecast = result.data.forecast;
-
+          setLocation(result.data.location);
+          console.log("result", result.data);
           const newArr = [];
           _forecast.forecastday.forEach((elem) => {
             const obj = {};
             const day = new Date(elem.date).getDay();
-            obj.location = elem.location;
             obj.day = daysName[day];
             obj.date = elem.date;
             obj.max = elem.day.maxtemp_c;
@@ -131,7 +131,9 @@ const App = () => {
         <div className="Loader">
           <Loader type="ThreeDots" color="#00BFFF" height={80} width={80} />
         </div>
-      ) : null}
+      ) : (
+        <div className="Loader">{location.name}</div>
+      )}
       {dayArray.map((e) => {
         return (
           // Card Container
